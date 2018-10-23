@@ -20,14 +20,17 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 dotenv.load_dotenv(os.path.join(BASE_DIR, '.env'))
 ENV = os.environ.get('ENV')
 
+# デバッグ設定（本番環境のみOFFにする）
+DEBUG = False
+if ENV is 'prod':
+    # SECURITY WARNING: don't run with debug turned on in production!
+    DEBUG = True
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'g*p40&0v3#1+8cq6b5k1hwp(=3*%@0ty4&n1y6rkg)44s@xx4m'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -107,18 +110,91 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'ja'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Tokyo'
 
 USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# ログ設定
+LOGGING_PATH = os.environ.get('LOGGING_PATH')
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    # こんな感じでログを出力する
+    # [DEBUG] 2003-07-08 16:49:45,896 /var/log/webapp/filename.py [12] message string
+    'formatters': {
+        'default': {
+            'format': '\t'.join([
+                '[%(levelname)s]',
+                '%(asctime)s',
+                '%(pathname)s/%(filename)s [%(lineno)d]',
+                '%(message)s'
+            ])
+        },
+    },
+    'handlers': {
+        'error': {
+            'level': 'ERROR',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGGING_PATH, 'error.log'),
+            'formatter': 'default',
+        },
+        'warning': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGGING_PATH, 'warning.log'),
+            'formatter': 'default',
+        },
+        'info': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGGING_PATH, 'info.log'),
+            'formatter': 'default',
+        },
+        'debug': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGGING_PATH, 'debug.log'),
+            'formatter': 'default',
+        },
+        'request': {
+            'level': 'NOTSET',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(LOGGING_PATH, 'request.log'),
+            'formatter': 'default',
+        },
+    },
+    'loggers': {
+        'error': {
+            'handlers': ['error'],
+            'level': 'ERROR',
+        },
+        'warning': {
+            'handlers': ['warning'],
+            'level': 'WARNING',
+        },
+        'info': {
+            'handlers': ['info'],
+            'level': 'INFO',
+        },
+        'debug': {
+            'handlers': ['debug'],
+            'level': 'DEBUG',
+        },
+        'request': {
+            'handlers': ['request'],
+            'level': 'NOTSET',
+        },
+    },
+}
